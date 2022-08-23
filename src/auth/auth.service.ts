@@ -1,6 +1,6 @@
 import { NewUserDTO } from './../users/dtos/new-user.dto';
 import { UsersService } from './../users/users.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserDetails } from 'src/users/interface/user-details.interface';
 import { loginUserDTO } from 'src/users/dtos/login-user.dto';
@@ -20,27 +20,31 @@ export class AuthService {
 
     const existingUser = await this.userService.findByEmail(email);
 
-    if (existingUser) return 'Already Exist'
+    if (existingUser) throw new NotAcceptableException('User already exists!')
 
     const hashedPassword = await this.__hashPassword(password);
     const newUser = await this.userService.create(username, fullname, email, hashedPassword, birthdate);
 
+    console.log(newUser);
+
+
     return this.userService._getUserDetails(newUser);
   }
+
 
   async login(user: Readonly<loginUserDTO>): Promise<any> {
 
     const existingUser = await this.__validateUser(user.email, user.password);
 
-    if (!existingUser) return 'incorrect';
+    if (!existingUser) throw new NotFoundException('Email or password incorrect');
 
-    const jwt = await this.jwtService.signAsync({ existingUser })
+    const jwt = await this.jwtService.signAsync({ id: existingUser.id, roles: existingUser.roles })
 
     return {
-      user: existingUser,
       token: jwt
-    }
+    };
   }
+
 
   //#region internal functions
 

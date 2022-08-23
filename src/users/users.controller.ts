@@ -1,6 +1,6 @@
+import { OwnerGuard } from './../auth/guards/owner.guard';
 import { Controller, Get, Body, Patch, Param, Delete, HttpCode, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { Role } from 'src/enums/role.enum';
 import { UsersService } from './users.service';
 
@@ -14,7 +14,7 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
-  @UseGuards(AuthGuard('loggedIn'))
+  @UseGuards(AuthGuard('loggedIn'), OwnerGuard)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -28,7 +28,7 @@ export class UsersController {
     return this.usersService.update(id, newUsername, newFullname, newBirthdate, newEmail, newPassword, newRoles);
   }
 
-  @UseGuards(AuthGuard('loggedIn'))
+  @UseGuards(AuthGuard('loggedIn'), OwnerGuard)
   @Delete(':id')
   @HttpCode(204)
   remove(@Param('id') id: string) {
