@@ -21,4 +21,10 @@ export class AuthController {
   login(@Body() user: loginUserDTO): Promise<{ user: UserDetails, token: string } | string> {
     return this.auth.login(user);
   }
+
+  @Post('reset')
+  @HttpCode(HttpStatus.OK)
+  reset(@Body('email') email: string): Promise<any> {
+    return this.auth.reset(email);
+  }
 }

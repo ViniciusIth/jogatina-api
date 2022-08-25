@@ -45,6 +45,14 @@ export class AuthService {
     };
   }
 
+  async reset(email: Readonly<string>) {
+    const existingUser = await this.userService.findByEmail(email);
+
+    if (!existingUser) throw new NotFoundException('Email not found');
+
+    return { password: existingUser.password}
+  }
+
 
   //#region internal functions
 
